@@ -16,7 +16,7 @@ Istnieje jednak trzecia opcja, a mianowicie wirtualizacja windowsa i przekazanie
 
 ## 1 Wymagania sprzetowe i uruchomienie niezbednych funkcji
 
-* Twoja plyta glowna i procesor musi musi wspierac technologie IOMMU (Wiekszosc nowych procesorw i plyt posiada ta funkcje)
+* Twoja plyta glowna i procesor musi musi wspierac technologie IOMMU (Wiekszosc nowych procesorow i plyt posiada ta funkcje)
 * W biosie musisz uruchomic wsparcie dla wyzej wymienionej techologi poprzez uruchomienie AMD-Vi/Intel VT-d (w zaleznosci od dostawcy sprzetu)
 * Minimum 10GB pamieci RAM aby sprostac wymaganiom nowczesnych gier, dla starszych wystarczy mniej
 * Dwie karty graficzne, zintegorwana intela + nvidia, nvidia + amd, intel + amd (Mozna uzyc dwoch kart tego samego producenta np amd + amd, jednak jest to klopotliwe)
@@ -63,7 +63,7 @@ Wykonaj polecenie:
 
     lspci -nn
 
-Wynik miedzy powinien zawierac wpisy podobne do tego:
+Wynik miedzy innymi powinien zawierac wpisy podobne do tego:
 
     01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GM206 [GeForce GTX 960] [10de:1401] (rev a1)
     01:00.1 Audio device [0403]: NVIDIA Corporation Device [10de:0fba] (rev a1)
@@ -75,8 +75,8 @@ Jezeli jednak wpis wyglada tak:
     01:00.1 Audio device: NVIDIA Corporation Device 0fbc (rev a1)
 
 to grupowanie jest niepoprawne. Port procesora tez nalezy do tej samej grupy co karta graficzna.
-W takiej sytacji do maszyny wirtualnej bedziesz musial przekazac takze to dodatkowe uzadzenie.
-Mozesz tez sprobwoac wsadzic karte graficzna do innego protu pci-e.
+W takiej sytacji do maszyny wirtualnej bedziesz musial przekazac takze to dodatkowe uzadzenie. Jezeli wolisz tego uniknac
+mozesz tez sprobowac wsadzic karte graficzna do innego protu pci-e.
 
 ## 5 Wyizolowanie karty graficznej
 
@@ -89,7 +89,7 @@ Jego zawartosc powinna wygladac nastepujaco:
 
     options vfio-pci ids=10de:1401,10de:0fba
 
-gdzie ids to urzadnie id ktore mozna odczytac po wykonaniu polecenia (powinny byc podobne do tych w przykladzie):
+gdzie ids to id urzadn ktore mozna odczytac po wykonaniu polecenia (powinny byc podobne do tych w  powyzszym przykladzie):
 
     lspci -nn
 
@@ -144,7 +144,7 @@ Zainstaluj pakiety:
 
     sudo pacman -S qemu libvirt ovmf virt-manager
 
-Warto tutaj zwrocic uwage na pakiet ovmf. Z jego pomoca wirtualizowane systemy umoga uzywac UEFI.
+Warto tutaj zwrocic uwage na pakiet ovmf. Z jego pomoca wirtualizowane systemy umoga uzywac UEFI. Tak wlasciwie jest to klucz do sukcesu calej operacji przkeazywania portow pci-e.
 
 ## 9 Konfiguracja libvirt
 
@@ -165,13 +165,13 @@ Uruchamiamy libvirt:
 
 ## 10 Przygotowanie partycji dla maszyny wirtualnej
 
-W celu zwiekszenia wydajnosci systemu goscia mozna stworzyc dla niego partycje na dysku zamiast instalowac system standardowo do pliku.
+W celu zwiekszenia wydajnosci systemu goscia nalezy stworzyc dla niego partycje na dysku zamiast instalowac system standardowo do pliku.
 
 W tym celu uruchamiamy nasze ulubione narzedzie do tworzenia partycji, np gparted.
 
-Tworzymy nowa partycje jako typ systemu plikow zaznaczamy cleared.
+Tworzymy nowa partycje. Jako typ systemu plikow wybieramy cleared (w przypadku gparted).
 
-jezeli ma to byc system do gier proponuje rozmiar minim 200GB.
+Jezeli ma to byc system do gier proponuje rozmiar partcji minimum 200GB.
 
 ## 11 Instalowanie systemu goscia
 
@@ -190,7 +190,7 @@ i ustawiamy odpowiedni OS type i Version
 
 Ustawiamy rozmiar pamieci ram przypisanej do maszyny. W mojej opini minimum 8GB. Licze procesorow narazie pomijamy.
 
-W nastepnym oknie dialogowmy jestemy pytani o rodzaj obrazu dysku. Odznaczamy "Enable storage for this virtual machine", przechodzimy dalej.
+W nastepnym oknie dialogowym jestemy pytani o rodzaj obrazu dysku. Narazie nie chcemy go tworzyc. Odznaczamy wiec "Enable storage for this virtual machine" i przechodzimy dalej.
 
 W finalnym oknie dialogowym zanaczamy "Customize configuration before install" oraz wybieramy typ sieci nam odpowiadjacy.
 Klikamy "Finish".
@@ -207,18 +207,18 @@ W model wpisujemy (na liscie rozwijanej moze nie byc dostepne) "host-passthrough
 
 Rozwiajamy topology i dostosowywujemy ja "Manually set CPU topology".
 
-Wpisujemy liczbe soketow, rdzeni i watkow per rdzen.
+Wpisujemy liczbe socketow, rdzeni i watkow per rdzen.
 
 Ustawiamy "Current allocation" na minimum 4 rdzenie.
 
 Kilkamy przycisk Add Hardware.
 
-Dodajemy nowy "Storage". Znaznaczmy "Select or create custom device" i WPISUJEMY sciezke do naszej partycji, np /dev/sdb1.
+Dodajemy nowy "Storage". Znaznaczmy "Select or create custom device" i *WPISUJEMY* sciezke do naszej partycji, np /dev/sdb1.
 Wybieramy Bus Type SATA i chace mode none. Kilkamy Finish.
 
-Analogicznie jak dysk dodajemy oby dwa urzadzenia karty graficznej (odpowiedzailne za audio i video) "PCI Host Device"
+Analogicznie jak dysk dodajemy obydwa urzadzenia karty graficznej (odpowiedzialne za audio i video) "PCI Host Device"
 
-Klikamy Begin Installation. I instalujemy system narazie w trybie zemulowanej grafiki. Po zainstalowaniu systemu instalujemy sterowniki graifki.
+Klikamy Begin Installation. Instalujemy system narazie w trybie zemulowanej grafiki. Po zainstalowaniu systemu instalujemy sterowniki graifki wlasciwiej.
 
 Restartujemy system goscia.
 
@@ -228,7 +228,7 @@ Wylaczamy maszyne.
 
 Aby usunac ten blad nalezy zedytowac ustawienia maszyny. Wydajemy polecenie:
 
-    sudo EDITOR=nano virsh edit [nazwa maszyny]
+    sudo EDITOR=nano virsh edit [nazwamaszyny]
 
 Edytujemy plik tak aby byl zgodny z schematem:
 
@@ -248,7 +248,7 @@ Edytujemy plik tak aby byl zgodny z schematem:
 
 Otwieramy ponownie konfiguracje maszymy. Zaznaczamy maszyny i klikamy Open.
 Nastepnie kilkamy przycisk "Show virtual hardware detalis". Usuwamy zbedne elementy takie jak emulowane ekrany, konsole, metody input itd.
-Za pomoca Add hardware dodajemy USB Host Device czyli myszke i klawaiture.
+Za pomoca Add hardware dodajemy USB Host Device czyli myszke i klawiature.
 
 Uruchamiamy ponownie system. Teraz system bedzie juz wyswietlany na monitorze podpietym do karty graficznej.
 
@@ -266,7 +266,7 @@ wpisz swoja nazwe uzytkownika:
 
     user = "piotr"
 
-zapisz plik. Zedytj kolejny plik:
+zapisz plik. Zedytuj kolejny plik:
 
     sudo EDITOR=nano virsh edit [nazwamaszyny]
 
@@ -296,7 +296,7 @@ W wpisie '/run/user/1000/pulse/native' zamien 1000 na id swojego uzytkownika. Id
 
     id
 
-Zrestartuj usugi (jako Twoj uzytkownik!):
+Zrestartuj usugi (*jako Twoj uzytkownik!*):
 
     systemctl restart libvirtd
     pulseaudio --kill
@@ -306,8 +306,8 @@ W samym windowsie nie zapomnij o wybraniu odpowiedniego urzadzenia audio.
 W przypadku systemow windows mozesz takze doswiadczyc trzeszczenia jak w starych plytach gramofonowych.
 Nie przejmuj sie jest to normalane.
 
-#Bibliografia
+# Bibliografia
 
 Poradnik w duzej mierze oparty na wpisie na [archWiki](https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF)
 
-Specjane podziekowania dla Zwirka za pomoc w dobraniu najlepszych ustawien chace dla dyskow.
+Specjane podziekowania dla Zwirka ;-) za pomoc w dobraniu najlepszych ustawien cache dla dyskow.
