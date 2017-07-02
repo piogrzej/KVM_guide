@@ -306,8 +306,19 @@ W samym windowsie nie zapomnij o wybraniu odpowiedniego urzadzenia audio.
 W przypadku systemow windows mozesz takze doswiadczyc trzeszczenia jak w starych plytach gramofonowych.
 Nie przejmuj sie jest to normalane.
 
+# 13 Wykrywanie partycji guesta na host
+
+Nalezy zainstalowac:
+
+    yaourt multipath-tools
+    
+W celu wykrycia partycji wydajemy polecenie:
+
+    sudo kpartx -a <scizeka do partycji np. /dev/sdb2>
+
+
 # Bibliografia
 
 Poradnik w duzej mierze oparty na wpisie na [archWiki](https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF)
 
-Specjane podziekowania dla Zwirka ;-) za pomoc w dobraniu najlepszych ustawien cache dla dyskow.
+Specjane podziekowania dla Zwirka ;-) za pomoc w dobraniu najlepszych ustawien cache dla dyskow oraz wspomnieniu o narzedziu kpartx.
