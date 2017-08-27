@@ -175,7 +175,7 @@ Jezeli ma to byc system do gier proponuje rozmiar partcji minimum 200GB.
 
 ## 11 Instalowanie systemu goscia
 
-###UWAGA na screenach instaluje Linuxa jedna dla Windowsa procedura jest identyczna
+### UWAGA na screenach instaluje Linuxa jednak dla Windowsa procedura jest identyczna
 
 Uruchamiany virt-manager poleceniem:
 
