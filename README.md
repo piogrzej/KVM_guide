@@ -175,6 +175,8 @@ Jezeli ma to byc system do gier proponuje rozmiar partcji minimum 200GB.
 
 ## 11 Instalowanie systemu goscia
 
+###UWAGA na screenach instaluje Linuxa jedna dla Windowsa procedura jest identyczna
+
 Uruchamiany virt-manager poleceniem:
 
     virt-manager
@@ -185,19 +187,31 @@ Wybieramy:
 
 Wybieramy rodzaj medium instlacyjnego (w moim przypadku ISO).
 
+![Wybieranie ISO](imgs/1.png)
+
 W kolejnym kroku podajemy sciezke do pliku, odzanaczmy "Automatically detect operating system based on install media"
 i ustawiamy odpowiedni OS type i Version
 
-Ustawiamy rozmiar pamieci ram przypisanej do maszyny. W mojej opini minimum 8GB. Licze procesorow narazie pomijamy.
+![Wybieranie OS](imgs/2.png)
+
+Ustawiamy rozmiar pamieci ram przypisanej do maszyny. W mojej opini minimum 8GB. Liczbe procesorow narazie pomijamy.
+
+![Ustawienia RAM](imgs/3.png)
 
 W nastepnym oknie dialogowym jestemy pytani o rodzaj obrazu dysku. Narazie nie chcemy go tworzyc. Odznaczamy wiec "Enable storage for this virtual machine" i przechodzimy dalej.
+
+![Pomijamy tworzenie dysku](imgs/4.png)
 
 W finalnym oknie dialogowym zanaczamy "Customize configuration before install" oraz wybieramy typ sieci nam odpowiadjacy.
 Klikamy "Finish".
 
+![Okno Finalne](imgs/5.png)
+
 Otowrzy sie okno konfiguracyjne.
 
 W zakladce Overview zmieniamy firmware na UEFI, a chipset na Q35.
+
+![UEFI i chipset](imgs/6.png)
 
 Usuwamy Ide Disk 1, jezeli takowy istnieje.
 
@@ -211,12 +225,18 @@ Wpisujemy liczbe socketow, rdzeni i watkow per rdzen.
 
 Ustawiamy "Current allocation" na minimum 4 rdzenie.
 
+![Konfiguracja CPU](imgs/7.png)
+
 Kilkamy przycisk Add Hardware.
 
 Dodajemy nowy "Storage". Znaznaczmy "Select or create custom device" i *WPISUJEMY* sciezke do naszej partycji, np /dev/sdb1.
 Wybieramy Bus Type SATA i chace mode none. Kilkamy Finish.
 
+![Dodawanie dysku](imgs/8.png)
+
 Analogicznie jak dysk dodajemy obydwa urzadzenia karty graficznej (odpowiedzialne za audio i video) "PCI Host Device"
+
+![Dodawanie urzadzen PCIE](imgs/9.png)
 
 Klikamy Begin Installation. Instalujemy system narazie w trybie zemulowanej grafiki. Po zainstalowaniu systemu instalujemy sterowniki graifki wlasciwiej.
 
