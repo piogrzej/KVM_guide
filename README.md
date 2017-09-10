@@ -26,6 +26,10 @@ Istnieje jednak trzecia opcja, a mianowicie wirtualizacja windowsa i przekazanie
 
 * Instaluj Arch Linux zgodnie z moim poradnikiem: [link](https://github.com/piogrzej/arch_install_guide_pl)
 * Wykonaj punkty od 1 do 14 wlacznie
+* W punkcie 14 do paprametrow wywołania EFI nalezy dodac wpis uruchamiajacy IOMMU:
+
+    efibootmgr -d /dev/sdX -p Y -c -L "Arch Linux" -l /vmlinuz-linux -u "root=/dev/sdb4 rw initrd=/initramfs-linux.img intel_iommu=on"
+
 * W punkcie 15 instaluje sie sterowniki karty graficznej. Jako ze masz dwie karty graficzne bedziesz instalowal dwa sterowniki grafiki
 np mesa + nvidia. Gdy juz wykonasz te operacje wstrzymaj sie z dalszym instalowaniem systemu. Wykonuj kolejne punkty niniejszego poradnika
 do momentu az nie zaznacze ze mozesz dokonczyc instalacje systemu.
