@@ -100,7 +100,7 @@ gdzie ids to id urzadn ktore mozna odczytac po wykonaniu polecenia (powinny byc 
 aby upewnic sie ze kernel zaladuje mod vfio-pci musimy zatroszyczc sie o odpowiednia konfiguracje.
 Edytujemy plik:
 
-    sudo nano /etc/modprobe.d/vfio.conf
+    sudo nano /etc/mkinitcpio.conf
 
 Znajdujemy wpisy analogiczne do:
 
