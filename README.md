@@ -18,6 +18,10 @@ Istnieje jednak trzecia opcja, a mianowicie wirtualizacja windowsa i przekazanie
 
 * Twoja plyta glowna i procesor musi musi wspierac technologie IOMMU (Wiekszosc nowych procesorow i plyt posiada ta funkcje)
 * W biosie musisz uruchomic wsparcie dla wyzej wymienionej techologi poprzez uruchomienie AMD-Vi/Intel VT-d (w zaleznosci od dostawcy sprzetu)
+
+    W przypadku tandemu i5 4690k + MSI z97 PC MATE wyglada to jak na ponizszym obrazku
+    ![Intel Virtualization/VT-D](imgs/0.bmp)
+
 * Minimum 10GB pamieci RAM aby sprostac wymaganiom nowczesnych gier, dla starszych wystarczy mniej
 * Dwie karty graficzne, zintegorwana intela + nvidia, nvidia + amd, intel + amd (Mozna uzyc dwoch kart tego samego producenta np amd + amd, jednak jest to klopotliwe)
 * Najlepiej dwa monitory, polecam takze urzadzenia typu KVM swich.
@@ -30,8 +34,9 @@ Istnieje jednak trzecia opcja, a mianowicie wirtualizacja windowsa i przekazanie
 
     efibootmgr -d /dev/sdX -p Y -c -L "Arch Linux" -l /vmlinuz-linux -u "root=/dev/sdb4 rw initrd=/initramfs-linux.img intel_iommu=on"
 
-* W punkcie 15 instaluje sie sterowniki karty graficznej. Jako ze masz dwie karty graficzne bedziesz instalowal dwa sterowniki grafiki
-np mesa + nvidia. Gdy juz wykonasz te operacje wstrzymaj sie z dalszym instalowaniem systemu. Wykonuj kolejne punkty niniejszego poradnika
+* W punkcie 15 instaluje sie sterowniki karty graficznej. Nie ma potrzeby instalowania sterowników karty graficznej przekazywanej do maszyny wirtualnej.
+Wystarczy że system rozpoznaje urządzenie PCIE, w moim przypadku wystarczyło zainstalować sterowniki MESA do obsługi zintegrowanego GPU.
+Gdy juz wykonasz te operacje wstrzymaj sie z dalszym instalowaniem systemu. Wykonuj kolejne punkty niniejszego poradnika
 do momentu az nie zaznacze ze mozesz dokonczyc instalacje systemu.
 
 ## 3 Sprawdzenie czy IOMMU jest napewno uruchomine
@@ -63,24 +68,30 @@ Jezeli nie widzimy wpisu "Intel-IOMMU: enabled" lub analogicznego, to oznacza ze
 
 ## 4 Upewnienie sie ze grupy IOMMU sa poprawne
 
-Wykonaj polecenie:
+W celu upewnienia sie ze grupy IOMMU sa poprawne wykonaj skrypt:
 
-    lspci -nn
+    #!/bin/bash
+    shopt -s nullglob
+    for d in /sys/kernel/iommu_groups/*/devices/*; do 
+        n=${d#*/iommu_groups/*}; n=${n%%/*}
+        printf 'IOMMU Group %s ' "$n"
+        lspci -nns "${d##*/}"
+    done;
 
-Wynik miedzy innymi powinien zawierac wpisy podobne do tego:
-
-    01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GM206 [GeForce GTX 960] [10de:1401] (rev a1)
-    01:00.1 Audio device [0403]: NVIDIA Corporation Device [10de:0fba] (rev a1)
+W grupie karty graficznej powinny znajdowac sie tylko i wylacznie dwa urzadzenia, kontroler dzwieku HDMI oraz sama karta.
+Jedyny wyjatekim od tej zasady sa karty wieloprocesorwe np GTX 690.
 
 Jezeli jednak wpis wyglada tak:
 
-    00:01.0 PCI bridge: Intel Corporation Xeon E3-1200 v2/3rd Gen Core processor PCI Express Root Port (rev 09)
-    01:00.0 VGA compatible controller: NVIDIA Corporation GM107 [GeForce GTX 750] (rev a2)
-    01:00.1 Audio device: NVIDIA Corporation Device 0fbc (rev a1)
+    IOMMU Group 1 00:01.0 PCI bridge [0604]: Intel Corporation Xeon E3-1200 v3/4th Gen Core Processor PCI Express x16 Controller [8086:0c01] (rev 06)
+    IOMMU Group 1 01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GM206 [GeForce GTX 960] [10de:1401] (rev a1)
+    IOMMU Group 1 01:00.1 Audio device [0403]: NVIDIA Corporation Device [10de:0fba] (rev a1)
 
-to grupowanie jest niepoprawne. Port procesora tez nalezy do tej samej grupy co karta graficzna.
-W takiej sytacji do maszyny wirtualnej bedziesz musial przekazac takze to dodatkowe uzadzenie. Jezeli wolisz tego uniknac
-mozesz tez sprobowac wsadzic karte graficzna do innego protu pci-e.
+to grupowanie jest niepoprawne. Mostek PCI nalezy takze do grupy karty graficznej. Jest to blad.
+Nie kazda plyta glowna obsluguje grupowanie poprawnie. Z mojego doswiadczenia wynika, ze w takiej sytuacji rozwiazania sa dwa.
+Mozna pozostawic ten blad "samemu sobie" i miec nadzieje ze wersje pakietow uzywanych do wirtualizacji poradza sobie z nim.
+Tak wlasnie jest w przypadku mojego prywatego komputera PC. Jest to jednak loteria na zasadzie "moze zadzialac ale a nie musi".
+Innym rozwiazaniem tego problemu jest przepiecie karty GPU do innego slotu PCI plyty glownej.
 
 ## 5 Wyizolowanie karty graficznej
 
@@ -93,22 +104,23 @@ Jego zawartosc powinna wygladac nastepujaco:
 
     options vfio-pci ids=10de:1401,10de:0fba
 
-gdzie ids to id urzadn ktore mozna odczytac po wykonaniu polecenia (powinny byc podobne do tych w  powyzszym przykladzie):
+gdzie ids to id urzadzen GPU i kontrolera audio HDMI ktore mozna odczytac po wykonaniu polecenia
+(powinny byc podobne do tych w powyzszym przykladzie):
 
     lspci -nn
 
 aby upewnic sie ze kernel zaladuje mod vfio-pci musimy zatroszyczc sie o odpowiednia konfiguracje.
 Edytujemy plik:
 
-    sudo nano /etc/modprobe.d/vfio.conf
+    sudo nano /etc/mkinitcpio.conf
 
 Znajdujemy wpisy analogiczne do:
 
-    MODULES="... vfio vfio_iommu_type1 vfio_pci vfio_virqfd ..."
+    MODULES=(... vfio vfio_iommu_type1 vfio_pci vfio_virqfd ...)
 
 oraz
 
-    HOOKS="... modconf ..."
+    HOOKS=(... modconf ...)
 
 edytujemy je tak aby byly zgodne z powzyszymi schematami.
 Regenerujemy kernel:
