@@ -6,46 +6,46 @@ I will do my best to provide it.
 
 ## 0 Cel
 
-Lubisz pracowac na Linuksie i grac w gry? Sporo osob uwaza ze istnieja dwa rozwiazania:
+Preferujesz prace z systemem Linuks i lubisz grać w gry? Istenieje wiele rozwiązań tego typu:
 
-* System operacyjny Windows i maszyna wirtulana Linux
-* Dual Boot
+* dual boot,
+* dwa komputery z dwoma systemami (Linux i Windows),
+* komputer i konstola do gier,
+* wine,
+* itd.
 
-Istnieje jednak trzecia opcja, a mianowicie wirtualizacja windowsa i przekazanie mu kontroli nad podzespolami,
- tak aby na wirtulaizacji tracic jak najmniej. Mozna to uzyskac za pomoca KVM czyli Kernel Virtual Machines.
+Istnieje jednak opcja o której niewiele osób wie, a mianowicie wirtualizacja windowsa i przekazanie mu kontroli nad podzespołami, tak aby na wirtulaizacji tracić jak najmniej. Można to uzyskać za pomocą KVM czyli Kernel Virtual Machines. Niniejszy poradnik wyjaśnia jak to zrobić krok po kroku.
 
-## 1 Wymagania sprzetowe i uruchomienie niezbednych funkcji
+## 1 Wymagania sprzętowe i uruchomienie niezbędnych funkcji
 
-* Twoja plyta glowna i procesor musi musi wspierac technologie IOMMU (Wiekszosc nowych procesorow i plyt posiada ta funkcje)
-* W biosie musisz uruchomic wsparcie dla wyzej wymienionej techologi poprzez uruchomienie AMD-Vi/Intel VT-d (w zaleznosci od dostawcy sprzetu)
+* Płyta główna i procesor musi musi wspierać technologię IOMMU (Wiekszość nowych procesorów i płyt posiada tą funkcje)
+* W biosie należy uruchomić wsparcie dla wyżej wymienionej techologii poprzez uruchomienie AMD-Vi/Intel VT-d (w zależności od dostawcy sprzętu)
 
-    W przypadku tandemu i5 4690k + MSI z97 PC MATE wyglada to jak na ponizszym obrazku
+    W przypadku tandemu i5 4690k + MSI z97 PC MATE wygląda to jak na poniższym obrazku
     ![Intel Virtualization/VT-D](imgs/0.bmp)
 
-* Minimum 10GB pamieci RAM aby sprostac wymaganiom nowczesnych gier, dla starszych wystarczy mniej
-* Dwie karty graficzne, zintegorwana intela + nvidia, nvidia + amd, intel + amd (Mozna uzyc dwoch kart tego samego producenta np amd + amd, jednak jest to klopotliwe)
-* Najlepiej dwa monitory, polecam takze urzadzenia typu KVM swich.
+* Minimum 10GB pamieci RAM aby sprostać wymaganiom nowczesnych gier, dla starszych wystarczy mniej
+* Dwie karty graficzne, zintegorwana intela + nvidia, nvidia + amd, intel + amd (Można użyć dwóch kart tego samego producenta np amd + amd, jednak może być to kłopotliwe)
+* Najlepiej dwa monitory, polecam takze urządzenia typu KVM switch.
 
 ## 2 Instalacja systemu operacyjnego
 
 * Instaluj Arch Linux zgodnie z moim poradnikiem: [link](https://github.com/piogrzej/arch_install_guide_pl)
-* Wykonaj punkty od 1 do 14 wlacznie
-* W punkcie 14 do paprametrow wywołania EFI nalezy dodac wpis uruchamiajacy IOMMU:
+> NOTE: Oczywiście można użyć dowolnego systemu operacyjnego Linuks o ile kernel wspiera odpowiednie funkcje
+* Wykonaj punkty od 1 do 14 włącznie
+* W punkcie 14 do parametrów wywołania EFI należy dodać wpis uruchamiający IOMMU:
 
     efibootmgr -d /dev/sdX -p Y -c -L "Arch Linux" -l /vmlinuz-linux -u "root=/dev/sdb4 rw initrd=/initramfs-linux.img intel_iommu=on"
 
-* W punkcie 15 instaluje sie sterowniki karty graficznej. Nie ma potrzeby instalowania sterowników karty graficznej przekazywanej do maszyny wirtualnej.
-Wystarczy że system rozpoznaje urządzenie PCIE, w moim przypadku wystarczyło zainstalować sterowniki MESA do obsługi zintegrowanego GPU.
-Gdy juz wykonasz te operacje wstrzymaj sie z dalszym instalowaniem systemu. Wykonuj kolejne punkty niniejszego poradnika
-do momentu az nie zaznacze ze mozesz dokonczyc instalacje systemu.
+* W punkcie 15 instalowane są sterowniki karty graficznej. Nie ma potrzeby instalowania sterowników karty graficznej przekazywanej do maszyny wirtualnej. Wystarczy że system rozpoznaje urządzenie PCIE, w moim przypadku wystarczyło zainstalować sterowniki MESA do obsługi zintegrowanego GPU. Gdy już wykonane zostaną te operacje wstrzymaj sie z dalszym instalowaniem systemu. Wykonuj kolejne punkty niniejszego poradnika do momentu aż nie zostanie zaznaczone, że możesz dokończyć instalację systemu.
 
-## 3 Sprawdzenie czy IOMMU jest napewno uruchomine
+## 3 Sprawdzenie czy IOMMU jest uruchomine
 
 Wykonaj polecenie:
 
     dmesg|grep -e DMAR -e IOMMU
 
-Wynik powinien byc podobny do ponizszego:
+Wynik powinien byc podobny do poniższego:
 
     [    0.000000] ACPI: DMAR 0x00000000BDCB1CB0 0000B8 (v01 INTEL  BDW      00000001 INTL 00000001)
     [    0.000000] Intel-IOMMU: enabled
@@ -64,22 +64,22 @@ Wynik powinien byc podobny do ponizszego:
     [    0.537549] IOMMU: Setting identity map for device 0000:00:1f.0 [0x0 - 0xffffff]
     [    2.182790] [drm] DMAR active, disabling use of stolen memory
 
-Jezeli nie widzimy wpisu "Intel-IOMMU: enabled" lub analogicznego, to oznacza ze IOMMU nie jest uruchomione.
+Jeżeli nie widać wpisu "Intel-IOMMU: enabled" lub analogicznego, oznacza to że IOMMU nie jest uruchomione.
 
-## 4 Upewnienie sie ze grupy IOMMU sa poprawne
+## 4 Upewnienie się że grupy IOMMU są poprawne
 
-W celu upewnienia sie ze grupy IOMMU sa poprawne wykonaj skrypt:
+Aby upewnienić się ze grupy IOMMU są poprawne można wykonać skrypt:
 
     #!/bin/bash
     shopt -s nullglob
-    for d in /sys/kernel/iommu_groups/*/devices/*; do 
+    for d in /sys/kernel/iommu_groups/*/devices/*; do
         n=${d#*/iommu_groups/*}; n=${n%%/*}
         printf 'IOMMU Group %s ' "$n"
         lspci -nns "${d##*/}"
     done;
 
-W grupie karty graficznej powinny znajdowac sie tylko i wylacznie dwa urzadzenia, kontroler dzwieku HDMI oraz sama karta.
-Jedyny wyjatekim od tej zasady sa karty wieloprocesorwe np GTX 690.
+W grupie karty graficznej powinny znajdowac sie tylko i wylacznie dwa urzadzenia, kontroler dzwieku HDMI oraz sama karta. Jedyny wyjatekim od tej zasady sa karty wieloprocesorowe np GTX 690.
+> NOTE: Z mojego doświadczenia wynika jednak, że tego typu układy są ciężkie w przekazywaniu do VMa.
 
 Jezeli jednak wpis wyglada tak:
 
@@ -87,34 +87,31 @@ Jezeli jednak wpis wyglada tak:
     IOMMU Group 1 01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GM206 [GeForce GTX 960] [10de:1401] (rev a1)
     IOMMU Group 1 01:00.1 Audio device [0403]: NVIDIA Corporation Device [10de:0fba] (rev a1)
 
-to grupowanie jest niepoprawne. Mostek PCI nalezy takze do grupy karty graficznej. Jest to blad.
-Nie kazda plyta glowna obsluguje grupowanie poprawnie. Z mojego doswiadczenia wynika, ze w takiej sytuacji rozwiazania sa dwa.
-Mozna pozostawic ten blad "samemu sobie" i miec nadzieje ze wersje pakietow uzywanych do wirtualizacji poradza sobie z nim.
-Tak wlasnie jest w przypadku mojego prywatego komputera PC. Jest to jednak loteria na zasadzie "moze zadzialac ale a nie musi".
-Innym rozwiazaniem tego problemu jest przepiecie karty GPU do innego slotu PCI plyty glownej.
+to grupowanie jest niepoprawne. Mostek PCI należy także do grupy karty graficznej. Jest to błąd. Niestety, nie każda płyta główna obsługuje grupowanie poprawnie. Z mojego doświadczenia wynika, że w takiej sytuacji rozwiązania są dwa. Po pierwsze, można pozostawić ten błąd "samemu sobie" i miec nadzieje że wersje pakietów używanych do wirtualizacji poradza sobie z nim. Tak właśnie jest w przypadku mojego prywatego komputera PC. Jest to jednak loteria na zasadzie "może zadziałać ale a nie musi". Ponadto, innym rozwiazaniem tego problemu jest przepięcie karty GPU do innego slotu PCI płyty głównej.
 
 ## 5 Wyizolowanie karty graficznej
 
-W tym celu bedziemy uzywali vfio-pci.
-Wskazanie ktore urzadzenia maja byc wyizolowane poprzez edycje pliku:
+W tym celu można użyć vfio-pci.
+Wskazanie które urządzenia mają być wyizolowane poprzez edycje pliku:
 
     sudo nano /etc/modprobe.d/vfio.conf
 
-Jego zawartosc powinna wygladac nastepujaco:
+Jego zawartość powinna wyglądać następująco:
 
     options vfio-pci ids=10de:1401,10de:0fba
 
-gdzie ids to id urzadzen GPU i kontrolera audio HDMI ktore mozna odczytac po wykonaniu polecenia
-(powinny byc podobne do tych w powyzszym przykladzie):
+gdzie ids to id urzadzeń GPU i kontrolera audio HDMI ktore można odczytać po wykonaniu polecenia:
 
     lspci -nn
 
-aby upewnic sie ze kernel zaladuje mod vfio-pci musimy zatroszyczc sie o odpowiednia konfiguracje.
-Edytujemy plik:
+> NOTE: id powinny być podobne do tych w powyższym przykładzie
+
+aby upewnić się że kernel załaduje mod vfio-pci należy zatroszyczć się o odpowiednią konfiguracje.
+Należy zedytować plik:
 
     sudo nano /etc/mkinitcpio.conf
 
-Znajdujemy wpisy analogiczne do:
+Wpisy analogiczne do:
 
     MODULES=(... vfio vfio_iommu_type1 vfio_pci vfio_virqfd ...)
 
@@ -122,20 +119,21 @@ oraz
 
     HOOKS=(... modconf ...)
 
-edytujemy je tak aby byly zgodne z powzyszymi schematami.
-Regenerujemy kernel:
+zedytować tak aby były zgodne z powższymi schematami.
+
+Po wykonaniu powyższych kroków trzeba zregenerować kernel:
 
     sudo mkinitcpio -p linux
 
-Restartujemy system.
+Ostatnim krookiem jest restart systemu, w ten sposób Linux wczyta zmiany.
 
-## 6 Sprawdzamy poprawnosc wyizolowania
+## 6 Sprawdzenie poprawności wyizolowania
 
-Wydajemy polecenie:
+Należy wydać polecenie:
 
     lspci -nnk
 
-Wynik powinien wygladac podobnie do:
+Wynik powinien wygladać podobnie do poniższego:
 
     ...
     01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GM206 [GeForce GTX 960] [10de:1401] (rev a1)
@@ -148,125 +146,127 @@ Wynik powinien wygladac podobnie do:
 	    Kernel modules: snd_hda_intel
     ...
 
-Jezeli widzimy wpis "Kernel driver in use: vfio-pci" to wyizolowanie udalo sie.
+Jezeli widać wpis "Kernel driver in use: vfio-pci" to wyizolowanie powiodło sie.
 
-## 7 Dokoncz instalowanie systemu operacyjnego
+## 7 Dokończenie instalowania systemu operacyjnego
 
-Dokoncz instalacje systemu operacyjnego zgodnie z moim poradnikiem: [link](https://github.com/piogrzej/arch_install_guide_pl)
+Jeżeli wszytskie poprzednie kroki zakończy się skucesem można dokończyć instalacje systemu [link](https://github.com/piogrzej/arch_install_guide_pl)
 
-## 8 Instalacja niezbednych narzedzi
+## 8 Instalacja niezbędnych narzędzi
 
-Zainstaluj pakiety:
+Należy zainstalować pakiety:
 
     sudo pacman -S qemu libvirt ovmf virt-manager
 
-Warto tutaj zwrocic uwage na pakiet ovmf. Z jego pomoca wirtualizowane systemy umoga uzywac UEFI. Tak wlasciwie jest to klucz do sukcesu calej operacji przkeazywania portow pci-e.
+Warto tutaj zwrócić uwage na pakiet ovmf. Z jego pomocą wirtualizowane systemy umogą używać UEFI. Tak właściwie jest to klucz do sukcesu całej operacji przekazywania portów pci-e.
 
 ## 9 Konfiguracja libvirt
 
-Edytujemy plik:
+Zedytować plik:
 
     sudo nano /etc/libvirt/qemu.conf
 
-tak aby zawieral wpis:
+tak aby zawierał wpis:
 
     nvram = [
 	    "/usr/share/ovmf/ovmf_code_x64.bin:/usr/share/ovmf/ovmf_vars_x64.bin"
     ]
 
-Uruchamiamy libvirt:
+Uruchomienie libvirt:
 
     sudo systemctl enable --now libvirtd
     sudo systemctl enable virtlogd.socket
 
 ## 10 Przygotowanie partycji dla maszyny wirtualnej
 
-W celu zwiekszenia wydajnosci systemu goscia nalezy stworzyc dla niego partycje na dysku zamiast instalowac system standardowo do pliku.
+W celu zwiększenia wydajności systemu goscia należy stworzyć dla niego partycje na dysku zamiast instalowac go standardowo do pliku.
 
-W tym celu uruchamiamy nasze ulubione narzedzie do tworzenia partycji, np gparted.
+W tym celu można użyć dowolnego narzędzie do tworzenia partycji, np gparted.
 
-Tworzymy nowa partycje. Jako typ systemu plikow wybieramy cleared (w przypadku gparted).
+Należy utworzyć nową partycje. Jako typ systemu plików wybrać cleared (w przypadku gparted).
 
-Jezeli ma to byc system do gier proponuje rozmiar partcji minimum 200GB.
+> NOTE: Jeżeli ma to być system do gier proponuję rozmiar partcji minimum 200GB.
 
-## 11 Instalowanie systemu goscia
+## 11 Instalowanie systemu gościa
 
-### UWAGA na screenach instaluje Linuxa jednak dla Windowsa procedura jest identyczna
+> NOTE: na screenach instalowany jest Linux, jednak dla Windowsa procedura jest identyczna
 
-Uruchamiany virt-manager poleceniem:
+Uruchomić virt-manager poleceniem:
 
     virt-manager
 
-Wybieramy:
+Wybrać:
 
     File -> New Virtual Machine
 
-Wybieramy rodzaj medium instlacyjnego (w moim przypadku ISO).
+Wybrać rodzaj medium instlacyjnego (w tym przypadku ISO).
 
 ![Wybieranie ISO](imgs/1.png)
 
-W kolejnym kroku podajemy sciezke do pliku, odzanaczmy "Automatically detect operating system based on install media"
-i ustawiamy odpowiedni OS type i Version
+W kolejnym kroku podać scieżkę do pliku, odznaczyć `Automatically detect operating system based on install media`, ustawić odpowiedni `OS type` i `Version`
 
 ![Wybieranie OS](imgs/2.png)
 
-Ustawiamy rozmiar pamieci ram przypisanej do maszyny. W mojej opini minimum 8GB. Liczbe procesorow narazie pomijamy.
+Podać rozmiar pamieci ram przypisanej do maszyny. W mojej opini minimum 8GB. Liczbę procesorów można narazie pominąć.
 
 ![Ustawienia RAM](imgs/3.png)
 
-W nastepnym oknie dialogowym jestemy pytani o rodzaj obrazu dysku. Narazie nie chcemy go tworzyc. Odznaczamy wiec "Enable storage for this virtual machine" i przechodzimy dalej.
+W następnym oknie dialogowym pada pytanie o rodzaj obrazu dysku. Narazie nie należy go tworzyć. Z tego powodu należy odznaczyć `Enable storage for this virtual machine` i przejść dalej.
 
 ![Pomijamy tworzenie dysku](imgs/4.png)
 
-W finalnym oknie dialogowym zanaczamy "Customize configuration before install" oraz wybieramy typ sieci nam odpowiadjacy.
-Klikamy "Finish".
+W finalnym oknie dialogowym wybrać "Customize configuration before install" oraz typ sieci według własnego uznania.
+Kliknąć `Finish`.
 
 ![Okno Finalne](imgs/5.png)
 
 Otowrzy sie okno konfiguracyjne.
 
-W zakladce Overview zmieniamy firmware na UEFI, a chipset na Q35.
+W zakladce Overview należy zmienić firmware na UEFI, a chipset na Q35.
 
 ![UEFI i chipset](imgs/6.png)
 
-Usuwamy Ide Disk 1, jezeli takowy istnieje.
+Usunać Ide Disk 1, jeżeli takowy istnieje.
 
-W zakladce CPUs konfigurujemy topologie procesora.
+W zakladce CPUs należy ustawić topologię procesora.
 
-W model wpisujemy (na liscie rozwijanej moze nie byc dostepne) "host-passthrough"
+W model wpisać (na liście rozwijanej może nie być dostępne) `host-passthrough`.
 
-Rozwiajamy topology i dostosowywujemy ja "Manually set CPU topology".
+Rozwinać zakładkę `topology` i dostosować ją `Manually set CPU topology`.
 
-Wpisujemy liczbe socketow, rdzeni i watkow per rdzen.
+Należy wispać liczbę socketów, rdzeni i watków per rdzen.
 
-Ustawiamy "Current allocation" na minimum 4 rdzenie.
+Ustawić "Current allocation" na minimum 4 rdzenie.
+
+> NOTE: Z mojego doświadczenia wynika że najlepiej jest przekazać wszytskie rdzenie/wątki procesora.
 
 ![Konfiguracja CPU](imgs/7.png)
 
-Kilkamy przycisk Add Hardware.
+Kilknąć przycisk `Add Hardware`.
 
-Dodajemy nowy "Storage". Znaznaczmy "Select or create custom device" i *WPISUJEMY* sciezke do naszej partycji, np /dev/sdb1.
-Wybieramy Bus Type SATA i chace mode none. Kilkamy Finish.
+Dodać nowy `Storage`. Ważne jest aby zanzaczyć `Select or create custom device` i *WPISAĆ* sciezke do wcześniej utworzonej partycji, np /dev/sdb1.
+
+> NOTE: można także użyć UUID
+
+Wybrać Bus Type SATA i `cache mode` `none`. Kilknąć `Finish`.
 
 ![Dodawanie dysku](imgs/8.png)
 
-Analogicznie jak dysk dodajemy obydwa urzadzenia karty graficznej (odpowiedzialne za audio i video) "PCI Host Device"
+Analogicznie jak dysk należy dodać obydwa urzadzenia karty graficznej (odpowiedzialne za audio i video) `PCI Host Device`
 
 ![Dodawanie urzadzen PCIE](imgs/9.png)
 
-Klikamy Begin Installation. Instalujemy system narazie w trybie zemulowanej grafiki. Po zainstalowaniu systemu instalujemy sterowniki graifki wlasciwiej.
+Kliknąć Begin Installation. Instalować system narazie w trybie zemulowanej grafiki. Po zainstalowaniu systemu zainstalować sterowniki graifki docelowej.
 
-Restartujemy system goscia.
+Zrestartować system gościa.
 
-W przypadku grafiki Nvidi najprawdopodbniej po restarcie sterownik bedzie raportowal blad: "Error 43: Driver failed to load".
+W przypadku grafiki Nvidi najprawdopodbniej po restarcie sterownik bedzie raportował błąd: `Error 43: Driver failed to load`.
 
-Wylaczamy maszyne.
-
-Aby usunac ten blad nalezy zedytowac ustawienia maszyny. Wydajemy polecenie:
+Aby usunać ten błąd należy wyłączyć maszynę a następnie zedytować jej ustawienia. Wydać polecenie:
 
     sudo EDITOR=nano virsh edit [nazwamaszyny]
 
-Edytujemy plik tak aby byl zgodny z schematem:
+Zedytować plik tak aby był zgodny z schematem:
 
     ...
     <features>
@@ -282,79 +282,44 @@ Edytujemy plik tak aby byl zgodny z schematem:
     </features>
     ...
 
-Otwieramy ponownie konfiguracje maszymy. Zaznaczamy maszyny i klikamy Open.
-Nastepnie kilkamy przycisk "Show virtual hardware detalis". Usuwamy zbedne elementy takie jak emulowane ekrany, konsole, metody input itd.
-Za pomoca Add hardware dodajemy USB Host Device czyli myszke i klawiature.
+Otworzyć ponownie konfiguracje maszymy. W tym celu w virt-manager zaznaczyć maszynę i klikąć Open.
+Nastepnie wybrać przycisk `Show virtual hardware detalis`. Należy usunąć wszytskie zbędne elementy takie jak emulowane ekrany, konsole, metody input itd.
+Za pomoca Add hardware dodać `USB Host Device` czyli myszkę i klawiature.
 
-Uruchamiamy ponownie system. Teraz system bedzie juz wyswietlany na monitorze podpietym do karty graficznej.
+Z mojego doświadczenia wynika, że przekazwyanie `USB Host device` może powodować problemy, szczególnie w przypadku daców/ krat dźwiękowych USB. Rozwiązaniem tego problemu jest przekazanie całego kontrolera USB za pomocą przekazania urządzenia `PCI Host Device`. W tym przypadku w przeciweństwie do karty graficznej nie trzeba izlować urządzenia PCI. Niestety nie wszytskie płyty głowne umożliwają wykonanie takiej operacji.
 
-## 12 przekazywanie audio przez pulse audio.
+*TODO: dodać obrazek*
 
-Zedytuj pilk:
+Uruchamć ponownie system. Teraz obraz pownien być już wyświetlany na monitorze podpiętym do karty graficznej.
 
-    sudo nano /etc/libvirt/qemu.conf
+## 12 Audio na maszynie wirtualnej.
 
-odkomentuj linie:
+W celu uruchomienia dźwięku na wierualnej maszynie można wykorzystać kilka metod, między innymi:
 
-    #user = ""
+* Przekazywanie audio przez pulse audio,
+* Dźwięk po hdmi.
 
-wpisz swoja nazwe uzytkownika:
+Z mojego doświadczenia jednak wynika że nie są to metody idealne. Dźwięk może być przerywany, spowolniony lub zanieczyszczony. W oby tych metodach nie działa mikrofon.
 
-    user = "piotr"
+Idealnym rozwiązaniem jest przekazanie zintegrowanej kraty dźwiękowej, proces jest anlogiczny jak w przypadku dodawania kontrolera USB.
 
-zapisz plik. Zedytuj kolejny plik:
-
-    sudo EDITOR=nano virsh edit [nazwamaszyny]
-
-zastap:
-
-    <domain type='kvm'>
-
-na:
-
-    <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
-
-oraz:
-
-     </devices>
-    </domain>
-
-na:
-
-       </devices>
-          <qemu:commandline>
-            <qemu:env name='QEMU_AUDIO_DRV' value='pa'/>
-            <qemu:env name='QEMU_PA_SERVER' value='/run/user/1000/pulse/native'/>
-          </qemu:commandline>
-     </domain>
-
-W wpisie '/run/user/1000/pulse/native' zamien 1000 na id swojego uzytkownika. Id mozesz sprawdzic za pomoca polecenia:
-
-    id
-
-Zrestartuj usugi (*jako Twoj uzytkownik!*):
-
-    systemctl restart libvirtd
-    pulseaudio --kill
-    pulseaudio --start
-
-W samym windowsie nie zapomnij o wybraniu odpowiedniego urzadzenia audio.
-W przypadku systemow windows mozesz takze doswiadczyc trzeszczenia jak w starych plytach gramofonowych.
-Nie przejmuj sie jest to normalane.
+*TODO: dodać obrazek*
 
 # 13 Wykrywanie partycji guesta na host
 
-Nalezy zainstalowac:
+Domyślnie pliki znajdujące się na pratycji guesta nie są widoczne z poziomu hosta.
+
+Aby rozwiązać ten problem należy zainstalować:
 
     yaourt multipath-tools
-    
-W celu wykrycia partycji wydajemy polecenie:
+
+W celu wykrycia partycji wydać polecenie:
 
     sudo kpartx -a <scizeka do partycji np. /dev/sdb2>
 
 
 # Bibliografia
 
-Poradnik w duzej mierze oparty na wpisie na [archWiki](https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF)
+Poradnik w dużej mierze oparty na wpisie z [archWiki](https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF)
 
-Specjane podziekowania dla Zwirka ;-) za pomoc w dobraniu najlepszych ustawien cache dla dyskow oraz wspomnieniu o narzedziu kpartx.
+Specjane podziękowania dla Żwirka ;-) za pomoc w dobraniu najlepszych ustawień cache dla dysków oraz wspomnieniu o narzędziu kpartx.
