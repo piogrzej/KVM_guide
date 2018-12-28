@@ -64,7 +64,7 @@ Wynik powinien byc podobny do poniższego:
     [    0.537549] IOMMU: Setting identity map for device 0000:00:1f.0 [0x0 - 0xffffff]
     [    2.182790] [drm] DMAR active, disabling use of stolen memory
 
-Jeżeli nie widać wpisu "Intel-IOMMU: enabled" lub analogicznego, oznacza to że IOMMU nie jest uruchomione.
+Jeżeli nie widać wpisu `Intel-IOMMU: enabled` lub analogicznego, oznacza to że IOMMU nie jest uruchomione.
 
 ## 4 Upewnienie się że grupy IOMMU są poprawne
 
@@ -81,7 +81,7 @@ Aby upewnienić się ze grupy IOMMU są poprawne można wykonać skrypt:
 W grupie karty graficznej powinny znajdowac sie tylko i wylacznie dwa urzadzenia, kontroler dzwieku HDMI oraz sama karta. Jedyny wyjatekim od tej zasady sa karty wieloprocesorowe np GTX 690.
 > NOTE: Z mojego doświadczenia wynika jednak, że tego typu układy są ciężkie w przekazywaniu do VMa.
 
-Jezeli jednak wpis wyglada tak:
+Jeżeli jednak wpis wygladą tak:
 
     IOMMU Group 1 00:01.0 PCI bridge [0604]: Intel Corporation Xeon E3-1200 v3/4th Gen Core Processor PCI Express x16 Controller [8086:0c01] (rev 06)
     IOMMU Group 1 01:00.0 VGA compatible controller [0300]: NVIDIA Corporation GM206 [GeForce GTX 960] [10de:1401] (rev a1)
@@ -91,7 +91,7 @@ to grupowanie jest niepoprawne. Mostek PCI należy także do grupy karty graficz
 
 ## 5 Wyizolowanie karty graficznej
 
-W tym celu można użyć vfio-pci.
+W tym celu można użyć `vfio-pci`.
 Wskazanie które urządzenia mają być wyizolowane poprzez edycje pliku:
 
     sudo nano /etc/modprobe.d/vfio.conf
@@ -106,7 +106,7 @@ gdzie ids to id urzadzeń GPU i kontrolera audio HDMI ktore można odczytać po 
 
 > NOTE: id powinny być podobne do tych w powyższym przykładzie
 
-aby upewnić się że kernel załaduje mod vfio-pci należy zatroszyczć się o odpowiednią konfiguracje.
+aby upewnić się że kernel załaduje mod `vfio-pci` należy zatroszyczć się o odpowiednią konfiguracje.
 Należy zedytować plik:
 
     sudo nano /etc/mkinitcpio.conf
@@ -125,7 +125,7 @@ Po wykonaniu powyższych kroków trzeba zregenerować kernel:
 
     sudo mkinitcpio -p linux
 
-Ostatnim krookiem jest restart systemu, w ten sposób Linux wczyta zmiany.
+Ostatnim krokiem jest restart systemu, w ten sposób Linux wczyta zmiany.
 
 ## 6 Sprawdzenie poprawności wyizolowania
 
@@ -146,7 +146,7 @@ Wynik powinien wygladać podobnie do poniższego:
 	    Kernel modules: snd_hda_intel
     ...
 
-Jezeli widać wpis "Kernel driver in use: vfio-pci" to wyizolowanie powiodło sie.
+Jezeli widać wpis `Kernel driver in use: vfio-pci` to wyizolowanie powiodło sie.
 
 ## 7 Dokończenie instalowania systemu operacyjnego
 
@@ -158,7 +158,7 @@ Należy zainstalować pakiety:
 
     sudo pacman -S qemu libvirt ovmf virt-manager
 
-Warto tutaj zwrócić uwage na pakiet ovmf. Z jego pomocą wirtualizowane systemy umogą używać UEFI. Tak właściwie jest to klucz do sukcesu całej operacji przekazywania portów pci-e.
+Warto tutaj zwrócić uwage na pakiet `ovmf`. Z jego pomocą wirtualizowane systemy umogą używać UEFI. Tak właściwie jest to klucz do sukcesu całej operacji przekazywania portów PCI.
 
 ## 9 Konfiguracja libvirt
 
@@ -179,9 +179,9 @@ Uruchomienie libvirt:
 
 ## 10 Przygotowanie partycji dla maszyny wirtualnej
 
-W celu zwiększenia wydajności systemu goscia należy stworzyć dla niego partycje na dysku zamiast instalowac go standardowo do pliku.
+W celu zwiększenia wydajności systemu goscia należy stworzyć dla niego partycje na dysku zamiast instalować go standardowo do pliku.
 
-W tym celu można użyć dowolnego narzędzie do tworzenia partycji, np gparted.
+W tym celu można użyć dowolnego narzędzia do tworzenia partycji, np gparted.
 
 Należy utworzyć nową partycje. Jako typ systemu plików wybrać cleared (w przypadku gparted).
 
@@ -215,28 +215,28 @@ W następnym oknie dialogowym pada pytanie o rodzaj obrazu dysku. Narazie nie na
 
 ![Pomijamy tworzenie dysku](imgs/4.png)
 
-W finalnym oknie dialogowym wybrać "Customize configuration before install" oraz typ sieci według własnego uznania.
+W finalnym oknie dialogowym wybrać `Customize configuration before install` oraz typ sieci według własnego uznania.
 Kliknąć `Finish`.
 
 ![Okno Finalne](imgs/5.png)
 
 Otowrzy sie okno konfiguracyjne.
 
-W zakladce Overview należy zmienić firmware na UEFI, a chipset na Q35.
+W zakladce Overview należy zmienić firmware na `UEFI`, a chipset na `Q35`.
 
 ![UEFI i chipset](imgs/6.png)
 
 Usunać Ide Disk 1, jeżeli takowy istnieje.
 
-W zakladce CPUs należy ustawić topologię procesora.
+W zakladce `CPUs` należy ustawić topologię procesora.
 
 W model wpisać (na liście rozwijanej może nie być dostępne) `host-passthrough`.
 
 Rozwinać zakładkę `topology` i dostosować ją `Manually set CPU topology`.
 
-Należy wispać liczbę socketów, rdzeni i watków per rdzen.
+Należy wispać liczbę socketów, rdzeni i watków per rdzeń.
 
-Ustawić "Current allocation" na minimum 4 rdzenie.
+Ustawić `Current allocation` na minimum 4 rdzenie.
 
 > NOTE: Z mojego doświadczenia wynika że najlepiej jest przekazać wszytskie rdzenie/wątki procesora.
 
@@ -244,7 +244,7 @@ Ustawić "Current allocation" na minimum 4 rdzenie.
 
 Kilknąć przycisk `Add Hardware`.
 
-Dodać nowy `Storage`. Ważne jest aby zanzaczyć `Select or create custom device` i *WPISAĆ* sciezke do wcześniej utworzonej partycji, np /dev/sdb1.
+Dodać nowy `Storage`. Ważne jest aby zanzaczyć `Select or create custom device` i *WPISAĆ* sciezke do wcześniej utworzonej partycji, np `/dev/sdb1`.
 
 > NOTE: można także użyć UUID
 
@@ -256,7 +256,7 @@ Analogicznie jak dysk należy dodać obydwa urzadzenia karty graficznej (odpowie
 
 ![Dodawanie urzadzen PCIE](imgs/9.png)
 
-Kliknąć Begin Installation. Instalować system narazie w trybie zemulowanej grafiki. Po zainstalowaniu systemu zainstalować sterowniki graifki docelowej.
+Kliknąć `Begin Installation`. Instalować system narazie w trybie zemulowanej grafiki. Po zainstalowaniu systemu zainstalować sterowniki graifki docelowej.
 
 Zrestartować system gościa.
 
@@ -320,6 +320,6 @@ W celu wykrycia partycji wydać polecenie:
 
 # Bibliografia
 
-Poradnik w dużej mierze oparty na wpisie z [archWiki](https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF)
+Poradnik w dużej mierze oparty na wpisie z [ArchWiki](https://wiki.archlinux.org/index.php/PCI_passthrough_via_OVMF)
 
 Specjane podziękowania dla Żwirka ;-) za pomoc w dobraniu najlepszych ustawień cache dla dysków oraz wspomnieniu o narzędziu kpartx.
