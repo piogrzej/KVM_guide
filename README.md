@@ -254,7 +254,7 @@ Wybrać Bus Type SATA i `cache mode` `none`. Kilknąć `Finish`.
 
 Analogicznie jak dysk należy dodać obydwa urzadzenia karty graficznej (odpowiedzialne za audio i video) `PCI Host Device`
 
-![Dodawanie urzadzen PCIE](imgs/9.png)
+![Dodawanie urządzeń PCIE](imgs/9.png)
 
 Kliknąć `Begin Installation`. Instalować system narazie w trybie zemulowanej grafiki. Po zainstalowaniu systemu zainstalować sterowniki graifki docelowej.
 
@@ -286,9 +286,9 @@ Otworzyć ponownie konfiguracje maszymy. W tym celu w virt-manager zaznaczyć ma
 Nastepnie wybrać przycisk `Show virtual hardware detalis`. Należy usunąć wszytskie zbędne elementy takie jak emulowane ekrany, konsole, metody input itd.
 Za pomoca Add hardware dodać `USB Host Device` czyli myszkę i klawiature.
 
-Z mojego doświadczenia wynika, że przekazwyanie `USB Host device` może powodować problemy, szczególnie w przypadku daców/ krat dźwiękowych USB. Rozwiązaniem tego problemu jest przekazanie całego kontrolera USB za pomocą przekazania urządzenia `PCI Host Device`. W tym przypadku w przeciweństwie do karty graficznej nie trzeba izlować urządzenia PCI. Niestety nie wszytskie płyty głowne umożliwają wykonanie takiej operacji.
+Z mojego doświadczenia wynika, że przekazwyanie `USB Host device` może powodować problemy, szczególnie w przypadku daców/krat dźwiękowych USB. Rozwiązaniem tego problemu jest przekazanie całego kontrolera USB za pomocą przekazania urządzenia `PCI Host Device`. W tym przypadku w przeciweństwie do karty graficznej nie trzeba izlować urządzenia PCI. Niestety nie wszytskie płyty główne umożliwają wykonanie takiej operacji. Ponadto w przypadku kontrolera USB możliwe że będzię potrzebny eksperyment na zasadzie "prób i błędów" w celu wybrania poprawnego urządzenia z listy.
 
-*TODO: dodać obrazek*
+![Dodawanie kontrolera USB](imgs/10.png)
 
 Uruchamć ponownie system. Teraz obraz pownien być już wyświetlany na monitorze podpiętym do karty graficznej.
 
@@ -303,7 +303,7 @@ Z mojego doświadczenia jednak wynika że nie są to metody idealne. Dźwięk mo
 
 Idealnym rozwiązaniem jest przekazanie zintegrowanej kraty dźwiękowej, proces jest anlogiczny jak w przypadku dodawania kontrolera USB.
 
-*TODO: dodać obrazek*
+![Dodawanie zintegrowanej karty dźwiękowej](imgs/11.png)
 
 # 13 Wykrywanie partycji guesta na host
 
