@@ -31,7 +31,7 @@ Istnieje jednak opcja o której niewiele osób wie, a mianowicie wirtualizacja w
 ## 2 Instalacja systemu operacyjnego
 
 * Instaluj Arch Linux zgodnie z moim poradnikiem: [link](https://github.com/piogrzej/arch_install_guide_pl)
-> NOTE: Oczywiście można użyć dowolnego systemu operacyjnego Linuks o ile kernel wspiera odpowiednie funkcje
+> NOTE: Oczywiście można użyć dowolnego systemu operacyjnego Linux o ile kernel wspiera odpowiednie funkcje
 * Wykonaj punkty od 1 do 14 włącznie
 * W punkcie 14 do parametrów wywołania EFI należy dodać wpis uruchamiający IOMMU:
 
